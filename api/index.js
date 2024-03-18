@@ -5,23 +5,32 @@ import dotenv from "dotenv";
 import userModel from "./models/user.js";
 import bcryptjs from "bcryptjs";
 import jwt from "jsonwebtoken";
+import cookieParser from "cookie-parser";
+import imageDownloader from "image-downloader";
+import multer from "multer";
 dotenv.config();
 const app = express();
 const PORT = 4000;
-
+const __dirname = "D:/-git-repositories/GeekBoards/api";
 const jwtSecret = "dkfjvndfksjncdksj";
 
 const URL = {
   TEST: "/test",
   REGISTER: "/register",
   LOGIN: "/login",
+  LOGOUT: "/logout",
+  PROFILE: "/profile",
+  UPLOAD_BY_LINK: "/upload-by-link",
+  UPLOADS: "/uploads",
+  UPLOAD: "/upload",
 };
 
 app.use(express.json());
-
+app.use(cookieParser());
+app.use(URL.UPLOADS, express.static(__dirname + "/uploads"));
 app.use(
   cors({
-    origins: "http://localhost:5173",
+    origin: "http://localhost:5173",
     credentials: true,
   })
 );
@@ -64,14 +73,13 @@ app.post(URL.LOGIN, async (req, res) => {
   if (userDoc) {
     const passOk = bcryptjs.compareSync(password, userDoc.password);
     if (passOk) {
-      res.json("pass ok");
       jwt.sign(
         { email: userDoc.email, id: userDoc._id },
         jwtSecret,
         {},
         (err, token) => {
           if (err) throw err;
-          res.cookie("token", token).json("pass ok");
+          res.cookie("token", token).json(userDoc);
         }
       );
     } else {
@@ -82,6 +90,51 @@ app.post(URL.LOGIN, async (req, res) => {
   }
 });
 
+app.get(URL.PROFILE, (req, res) => {
+  const { token } = req.cookies;
+  if (token) {
+    jwt.verify(token, jwtSecret, {}, async (err, userData) => {
+      if (err) throw err;
+      const { name, email, id } = await userModel.findById(userData.id);
+      res.json({ name, email, id });
+    });
+  } else {
+    res.json(null);
+  }
+  //res.json({token});
+});
+
+app.post(URL.LOGOUT, (req, res) => {
+  res.cookie("token", "").json(true);
+});
+
+app.post(URL.UPLOAD_BY_LINK, async (req, res) => {
+  const { link } = req.body;
+  const newName = "photo" + Date.now() + ".jpg";
+  try {
+    await imageDownloader.image({
+      url: link,
+      dest: __dirname + "/uploads/" + newName,
+    });
+    res.json(newName);
+  } catch (err) {
+    console.log("couldn't get an image.");
+  }
+});
+
+const photosMiddleware = multer({ dest: "uploads/" });
+app.post(URL.UPLOAD, photosMiddleware.array("photos", 100), (req, res) => {
+  const uploadedFiles = [];
+  for (let i = 0; i < req.files.length; i++) {
+    const { path, originalname } = req.files[i];
+    const parts = originalname.split(".");
+    const ext = parts[parts.length - 1];
+    const newPath = path + "." + ext;
+  }
+
+  res.json(req.photos);
+});
+
 app.listen(PORT);
 console.log(
   `\n--------------------
@@ -89,4 +142,3 @@ console.log(
         \nHere is your link: http://localhost:${PORT}/
         \n--------------------`
 );
-//GRceVxJOdjk56Khz
