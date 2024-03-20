@@ -23,7 +23,11 @@ export default function AccountPage() {
   }
 
   if (!ready) {
-    return "Loading...";
+    return (
+      <div className="w-full h-full m-auto text-center text-4xl font-bold text-gray-400">
+        Loading...
+      </div>
+    );
   }
 
   if (redirect) {

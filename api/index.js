@@ -8,10 +8,11 @@ import jwt from "jsonwebtoken";
 import cookieParser from "cookie-parser";
 import imageDownloader from "image-downloader";
 import multer from "multer";
+import fs from 'fs';
 dotenv.config();
 const app = express();
 const PORT = 4000;
-const __dirname = "D:/-git-repositories/GeekBoards/api";
+const __dirname = "C:/Users/egorp/git-repositories/GeekBoards/api";
 const jwtSecret = "dkfjvndfksjncdksj";
 
 const URL = {
@@ -118,7 +119,7 @@ app.post(URL.UPLOAD_BY_LINK, async (req, res) => {
     });
     res.json(newName);
   } catch (err) {
-    console.log("couldn't get an image.");
+    console.log("couldn't get an image. Error: " + err.message);
   }
 });
 
@@ -130,9 +131,11 @@ app.post(URL.UPLOAD, photosMiddleware.array("photos", 100), (req, res) => {
     const parts = originalname.split(".");
     const ext = parts[parts.length - 1];
     const newPath = path + "." + ext;
+    fs.renameSync(path, newPath);
+    uploadedFiles.push(newPath.replace("uploads/",""));
   }
 
-  res.json(req.photos);
+  res.json(uploadFiles);
 });
 
 app.listen(PORT);

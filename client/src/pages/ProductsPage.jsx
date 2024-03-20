@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import axios from "axios";
 
+
 export default function ProductsPage() {
   const { action } = useParams();
   const [title, setTitle] = useState("");
@@ -23,19 +24,21 @@ export default function ProductsPage() {
   function uploadPhoto(ev) {
     const files = ev.target.files;
     const data = new FormData();
-    data.set("photos", files);
+    for(let i=0; i <files.length; i++){
+      data.append('photos', files[i]);
+    }
     axios
       .post("/upload", data, {
         headers: { "Content-type": "multipart/form-data" },
       })
       .then((response) => {
-        const { data: filename } = response;
+        const { data: filenames } = response;
         setAddedPhotos((prev) => {
-          return [...prev, filename];
+          return [...prev, ...filenames];
         });
       });
   }
-
+  
   return (
     <div>
       {action !== "new" && (
@@ -99,13 +102,13 @@ export default function ProductsPage() {
                 addedPhotos.map((link) => (
                   <div className="">
                     <img
-                      className="rounded-2xl h-48 w-96"
+                      className="rounded-2xl max-h-48 max-w-96"
                       src={"http://localhost:4000/uploads/" + link}
                       alt=""
                     />
                   </div>
                 ))}
-              <label className="cursor-pointer flex items-center border bg-transparent rounded-2xl py-2 justify-center gap-2">
+              <label className="cursor-pointer flex items-center border bg-transparent rounded-2xl py-8 justify-center gap-2">
                 <input type="file" className="hidden" onChange={uploadPhoto} />
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
