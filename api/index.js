@@ -8,11 +8,11 @@ import jwt from "jsonwebtoken";
 import cookieParser from "cookie-parser";
 import imageDownloader from "image-downloader";
 import multer from "multer";
-import fs from 'fs';
+import fs from "fs";
 dotenv.config();
 const app = express();
 const PORT = 4000;
-const __dirname = "C:/Users/egorp/git-repositories/GeekBoards/api";
+const __dirname = "D:/-git-repositories/GeekBoards/api";
 const jwtSecret = "dkfjvndfksjncdksj";
 
 const URL = {
@@ -132,10 +132,9 @@ app.post(URL.UPLOAD, photosMiddleware.array("photos", 100), (req, res) => {
     const ext = parts[parts.length - 1];
     const newPath = path + "." + ext;
     fs.renameSync(path, newPath);
-    uploadedFiles.push(newPath.replace("uploads/",""));
+    uploadedFiles.push(newPath.replace("uploads\\", ""));
   }
-
-  res.json(uploadFiles);
+  res.json(uploadedFiles);
 });
 
 app.listen(PORT);
