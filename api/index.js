@@ -3,16 +3,17 @@ import cors from "cors";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import userModel from "./models/user.js";
+import productModel from "./models/product.js";
 import bcryptjs from "bcryptjs";
 import jwt from "jsonwebtoken";
 import cookieParser from "cookie-parser";
 import imageDownloader from "image-downloader";
 import multer from "multer";
-import fs from 'fs';
+import fs from "fs";
 dotenv.config();
 const app = express();
 const PORT = 4000;
-const __dirname = "C:/Users/egorp/git-repositories/GeekBoards/api";
+const __dirname = "D:/-git-repositories/GeekBoards/api";
 const jwtSecret = "dkfjvndfksjncdksj";
 
 const URL = {
@@ -24,6 +25,7 @@ const URL = {
   UPLOAD_BY_LINK: "/upload-by-link",
   UPLOADS: "/uploads",
   UPLOAD: "/upload",
+  PLACES: "/places",
 };
 
 app.use(express.json());
@@ -132,11 +134,61 @@ app.post(URL.UPLOAD, photosMiddleware.array("photos", 100), (req, res) => {
     const ext = parts[parts.length - 1];
     const newPath = path + "." + ext;
     fs.renameSync(path, newPath);
-    uploadedFiles.push(newPath.replace("uploads/",""));
+    uploadedFiles.push(newPath.replace("uploads\\", ""));
   }
-
-  res.json(uploadFiles);
+  res.json(uploadedFiles);
 });
+app.post(URL.PLACES, async (req, res) => {
+  const { token } = req.cookies;
+  const { title, addedPhotos, description } = req.body;
+  jwt.verify(token, jwtSecret, {}, async (err, userData) => {
+    if (err) throw err;
+    const placeDoc = await productModel.create({
+      owner: userData.id,
+      title,
+      photos: addedPhotos,
+      description,
+    });
+    res.json(placeDoc);
+  });
+});
+
+app.get("/places", async (req, res) => {
+  const { token } = req.cookies;
+  jwt.verify(token, jwtSecret, {}, async (err, userData) => {
+    const { id } = userData;
+    res.json(await productModel.find({ owner: id }));
+  });
+});
+
+app.get("/places/:id", async (req, res) => {
+  const { id } = req.params;
+  res.json(await productModel.findById(id));
+});
+
+app.put("/places", async (req, res) => {
+  const { token } = req.cookies;
+  const { title, addedPhotos, description, id } = req.body;
+  jwt.verify(token, jwtSecret, {}, async (err, userData) => {
+    if (err) throw err;
+    const placeDoc = await productModel.findById(id);
+    if (userData.id === placeDoc.owner.toString()) {
+      placeDoc.set({
+        title,
+        photos: addedPhotos,
+        description,
+      });
+      await placeDoc.save();
+      res.json("ok");
+    }
+  });
+});
+/*
+app.delete("/places", async (req, res) => {
+  const { id } = req.body;
+  console.log(id);
+  productModel.deleteOne({ _id: id });
+});*/
 
 app.listen(PORT);
 console.log(
