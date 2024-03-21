@@ -4,41 +4,41 @@ import AccountNav from "../AccountNav";
 import { Navigate, useParams } from "react-router-dom";
 import axios from "axios";
 
-export default function ProductsFormPage(places, setPlaces) {
+export default function ProductsFormPage() {
   const { id } = useParams();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [addedPhotos, setAddedPhotos] = useState([]);
   const [redirect, setRedirect] = useState(false);
-
   useEffect(() => {
     if (!id) {
       return;
     }
-    axios.get("/places/" + id).then((response) => {
+    axios.get("/places/" + id).then((response) => {      
       const { data } = response;
       setTitle(data.title);
       setDescription(data.description);
       setAddedPhotos(data.photos);
     });
   }, [id]);
-
+  
   async function saveProduct(ev) {
     ev.preventDefault();
     const productData = { title, description, addedPhotos };
     if(id){
-        await axios.put("/places", {...productData, id});
+      await axios.put("/places", {...productData, id});
     }
     else{
-        await axios.post("/places", productData);
+      await axios.post("/places", productData);
     }
     setRedirect(true);
   }
-
-  /*async function deleteProduct(){
-    await axios.delete("/places", id);
+  
+  async function deleteProduct(ev){
+    ev.preventDefault();
+    await axios.delete("/places/" + id, {});
     setRedirect(true);
-  }*/
+  }
 
   if (redirect) {
     return <Navigate to={"/account/bookings"} />;
@@ -47,7 +47,7 @@ export default function ProductsFormPage(places, setPlaces) {
   return (
     <div className="w-full">
       <AccountNav />
-      <form className="m-auto max-w-2xl" onSubmit={saveProduct}>
+      <form className="m-auto max-w-2xl" >
         <h2 className="text-xl">Title</h2>
         <input
           type="text"
@@ -63,13 +63,13 @@ export default function ProductsFormPage(places, setPlaces) {
           onChange={(ev) => setDescription(ev.target.value)}
         />
         <PhotosUploader addedPhotos={addedPhotos} onChange={setAddedPhotos} />
-        <button className="primary mt-3">Save</button>
-        {/*id && (
+        <button className="primary mt-3" onClick={saveProduct}>Save</button>
+        {id && (
             <>
                 <div className="w-full h-1 bg-gray-300 mt-5 mb-5 rounded-full"></div>
-                <button className="primary-del" onClick={deleteProduct()}>delete</button>
+                <button className="primary-del" onClick={deleteProduct}>delete</button>
             </>
-        )*/}
+        )}
       </form>
     </div>
   );

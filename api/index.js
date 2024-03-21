@@ -13,7 +13,7 @@ import fs from "fs";
 dotenv.config();
 const app = express();
 const PORT = 4000;
-const __dirname = "D:/-git-repositories/GeekBoards/api";
+const __dirname = "C:/Users/egorp/git-repositories/GeekBoards/api";
 const jwtSecret = "dkfjvndfksjncdksj";
 
 const URL = {
@@ -153,7 +153,7 @@ app.post(URL.PLACES, async (req, res) => {
   });
 });
 
-app.get("/places", async (req, res) => {
+app.get(URL.PLACES, async (req, res) => {
   const { token } = req.cookies;
   jwt.verify(token, jwtSecret, {}, async (err, userData) => {
     const { id } = userData;
@@ -161,12 +161,16 @@ app.get("/places", async (req, res) => {
   });
 });
 
+app.get("/places-index", async (req, res) => {
+  res.json(await productModel.find());
+});
+
 app.get("/places/:id", async (req, res) => {
   const { id } = req.params;
   res.json(await productModel.findById(id));
 });
 
-app.put("/places", async (req, res) => {
+app.put(URL.PLACES, async (req, res) => {
   const { token } = req.cookies;
   const { title, addedPhotos, description, id } = req.body;
   jwt.verify(token, jwtSecret, {}, async (err, userData) => {
@@ -183,12 +187,15 @@ app.put("/places", async (req, res) => {
     }
   });
 });
-/*
-app.delete("/places", async (req, res) => {
-  const { id } = req.body;
-  console.log(id);
-  productModel.deleteOne({ _id: id });
-});*/
+
+app.delete(URL.PLACES + "/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    await productModel.findByIdAndDelete(id).then(res.json("ok"));
+  } catch (err) {
+    res.json("Error: " + err.message);
+  }
+});
 
 app.listen(PORT);
 console.log(

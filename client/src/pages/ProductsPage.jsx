@@ -12,7 +12,7 @@ export default function ProductsPage() {
   }, []);
   return (
     <div>
-      <AccountNav places={places} setPlaces={setPlaces}></AccountNav>
+      <AccountNav></AccountNav>
       <div className="text-center font-bold">
         <Link
           className="inline-flex gap-2 bg-primary text-white py-2 pl-2 pr-6 rounded-full"
@@ -38,8 +38,8 @@ export default function ProductsPage() {
       <div className="mt-4">
         {places.length > 0 &&
           places.map((place) => (
-            <Link to={"/account/bookings/"+place._id} className=" flex bg-gray-100 rounded-2xl p-4 gap-4">
-              <div className="w-32 h-32 bg-gray-200 rounded-xl">
+            <Link to={"/account/bookings/"+place._id} className=" flex bg-transparent border-solid border-4 border-gray-200 rounded-2xl p-4 gap-4 mx-44 my-10">
+              <div className="w-32 min-w-32 h-32 bg-gray-200 rounded-xl">
                 {place.photos.length && (
                 <img className="rounded-xl w-full h-full object-cover" src={"http://localhost:4000/uploads/"+place.photos[0]} atl="" />
                 )}

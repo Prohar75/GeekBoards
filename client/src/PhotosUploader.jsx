@@ -73,7 +73,7 @@ export default function PhotosUploader({ addedPhotos, onChange }) {
               ></img>
               <button
                 onClick={ev => removePhoto(ev, link)}
-                className=" bg-white border-solid border-gray-300 border-4 absolute p-1.5 rounded-full ml-36 mt-20"
+                className=" bg-white border-solid border-gray-300 border-4 absolute p-1.5 rounded-full ml-28 mt-20"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -92,7 +92,7 @@ export default function PhotosUploader({ addedPhotos, onChange }) {
               </button>
               <button
                 onClick={ev => selectAsMain(ev, link)}
-                className=" bg-white border-solid border-gray-300 border-4 absolute p-1.5 rounded-full ml-36 mt-8"
+                className=" bg-white border-solid border-gray-300 border-4 absolute p-1.5 rounded-full ml-28 mt-8"
               >
                 {link === addedPhotos[0] && (
                   <svg
