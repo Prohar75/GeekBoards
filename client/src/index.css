@@ -11,3 +11,8 @@ button{
 button.primary{
     @apply bg-primary p-2 w-full text-white font-bold rounded-lg;
 }
+
+button.primary-del{
+    @apply bg-red-500 p-2 w-full text-white font-bold rounded-lg;
+}
+
